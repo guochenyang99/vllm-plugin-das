@@ -13,13 +13,13 @@ on:
         options: [preflight, execute]
         default: preflight
       image:
-        description: vLLM image to test (full reference); empty uses the newest dated jenkins/model_test_env/vllm 0.28.1 tag
+        description: vLLM image to test (full reference); empty uses the newest dated jenkins/model_test_env/vllm 0.25.1 tag
         type: string
         default: ''
       cases:
-        description: Exact cookbook section; empty tests all single-host vLLM 0.28.1 BW1100 deployments
+        description: Exact cookbook section; empty tests all single-host vLLM 0.25.1 BW1100 deployments
         type: string
-        default: qwen38-27b-channel-int8-w8a8-ifb-bw1100-bw1000-1x-vllm-0281
+        default: ''
 
 permissions:
   contents: read
