@@ -1,0 +1,51 @@
+name: Cookbook deployment smoke (vLLM)
+
+# Thin caller: all test behavior lives in guochenyang99/ci-model-test.
+
+on:
+  schedule:
+    - cron: "30 18 * * *" # 02:30 Asia/Shanghai daily
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: First run preflight; then execute
+        type: choice
+        options: [preflight, execute]
+        default: preflight
+      image:
+        description: vLLM image to test (full reference); empty uses the newest dated jenkins/model_test_env/vllm 0.28.1 tag
+        type: string
+        default: ''
+      cases:
+        description: Exact cookbook section; empty tests all single-host vLLM 0.28.1 BW1100 deployments
+        type: string
+        default: qwen38-27b-channel-int8-w8a8-ifb-bw1100-bw1000-1x-vllm-0281
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cookbook-deployment-smoke-vllm
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    runs-on: bw1100
+    timeout-minutes: 840
+    steps:
+      - name: Checkout private test controller
+        uses: actions/checkout@v4
+        with:
+          repository: guochenyang99/ci-model-test
+          # The maintained main branch supplies all test behavior.
+          ref: main
+          token: ${{ secrets.MODEL_SMOKE_REPO_TOKEN }}
+          persist-credentials: false
+          path: model-ci-tools
+      - name: Invoke maintained test controller
+        uses: ./model-ci-tools/.github/actions/deployment-smoke
+        with:
+          framework: vllm
+          image: ${{ inputs.image || '' }}
+          cases: ${{ inputs.cases || '' }}
+          mode: ${{ inputs.mode || 'execute' }}
